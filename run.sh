@@ -1,3 +1,5 @@
+docker build -t cadquery-conda:latest .
+
 docker run -it --rm \
   -e DISPLAY \
   -e WAYLAND_DISPLAY \

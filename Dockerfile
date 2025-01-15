@@ -24,22 +24,28 @@ RUN curl -LO https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.
 # conda にパスを通す
 ENV PATH=$CONDA_DIR/bin:$PATH
 
-# conda本体のアップデート + CadQuery用の環境を作成
-RUN conda update -n base -c defaults conda && \
-    conda create -n cadquery-env python=3.9 -y
-
-# conda initでbashを初期化
+# conda本体をアップデート & ベースの設定
+RUN conda update -n base -c defaults conda
 RUN conda init bash
 
-# 以後のRUNコマンドをbashで実行
-SHELL ["/bin/bash", "-c"]
-
-# CadQuery + CQ-editor をインストール
-RUN conda run -n cadquery-env conda install -y -c conda-forge -c cadquery \
-    cadquery cq-editor
+# environment.yml をコンテナにコピー
+COPY environment.yml /tmp/environment.yml
+RUN conda env update -n cadquery-env -f /tmp/environment.yml
 
 # 起動時にcadquery-envを自動有効化する設定
 RUN echo "conda activate cadquery-env" >> /root/.bashrc
+
+# CQ-editor のインストール先ディレクトリ
+ENV CQE_INSTALL_DIR=/root/cq-editor
+
+# CQ-editor のインストーラをダウンロードし、インストールして削除
+RUN set -ex && \
+    curl -LO https://github.com/CadQuery/CQ-editor/releases/download/nightly/CQ-editor-master-Linux-x86_64.sh && \
+    sh CQ-editor-master-Linux-x86_64.sh -b -p "$CQE_INSTALL_DIR" && \
+    rm CQ-editor-master-Linux-x86_64.sh
+
+# インストールした cq-editor の bin ディレクトリにパスを通す
+ENV PATH="$CQE_INSTALL_DIR/bin:$PATH"
 
 # デフォルトはログインシェルで起動し、.bashrcを読み込ませる
 CMD ["/bin/bash", "--login"]
