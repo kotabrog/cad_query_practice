@@ -15,6 +15,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxcb-xinerama0 \
     && rm -rf /var/lib/apt/lists/*
 
+# CQ-editor のインストール先ディレクトリ
+ENV CQE_INSTALL_DIR=/root/cq-editor
+
+# CQ-editor のインストーラをダウンロードし、インストールして削除
+RUN set -ex && \
+    curl -LO https://github.com/CadQuery/CQ-editor/releases/download/nightly/CQ-editor-master-Linux-x86_64.sh && \
+    sh CQ-editor-master-Linux-x86_64.sh -b -p "$CQE_INSTALL_DIR" && \
+    rm CQ-editor-master-Linux-x86_64.sh
+
+# インストールした cq-editor の bin ディレクトリにパスを通す
+ENV PATH=$CQE_INSTALL_DIR/bin:$PATH
+
 # Miniconda を /opt/conda にインストール
 ENV CONDA_DIR=/opt/conda
 RUN curl -LO https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
@@ -34,18 +46,6 @@ RUN conda env update -n cadquery-env -f /tmp/environment.yml
 
 # 起動時にcadquery-envを自動有効化する設定
 RUN echo "conda activate cadquery-env" >> /root/.bashrc
-
-# CQ-editor のインストール先ディレクトリ
-ENV CQE_INSTALL_DIR=/root/cq-editor
-
-# CQ-editor のインストーラをダウンロードし、インストールして削除
-RUN set -ex && \
-    curl -LO https://github.com/CadQuery/CQ-editor/releases/download/nightly/CQ-editor-master-Linux-x86_64.sh && \
-    sh CQ-editor-master-Linux-x86_64.sh -b -p "$CQE_INSTALL_DIR" && \
-    rm CQ-editor-master-Linux-x86_64.sh
-
-# インストールした cq-editor の bin ディレクトリにパスを通す
-ENV PATH="$CQE_INSTALL_DIR/bin:$PATH"
 
 # デフォルトはログインシェルで起動し、.bashrcを読み込ませる
 CMD ["/bin/bash", "--login"]

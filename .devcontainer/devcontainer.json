@@ -20,7 +20,8 @@
       "vscode": {
             // コンテナ内にインストールしたい VSCode 拡張機能を列挙
             "extensions": [
-                "ms-python.python"   // Python拡張
+                "ms-python.python",
+                "ms-toolsai.jupyter"
             ]
         }
     },
