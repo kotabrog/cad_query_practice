@@ -5,6 +5,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
 
+# Jupyter Notebook/Lab のポート
+EXPOSE 8888
+
 # CQ-editorで必要なOpenGL / X関連ライブラリをインストール
 # ※ GUI はlibgl1, libxcb-xinerama0, libxkbcommon-x11-0 などが必要
 RUN apt-get update && apt-get install -y --no-install-recommends \
